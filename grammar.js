@@ -205,6 +205,7 @@ module.exports = grammar({
       $.phaser_statement,
       $.conditional_statement,
       /* TODO: given/when/default */
+      $.given_when_statement,
       $.loop_statement,
       $.cstyle_for_statement,
       $.for_statement,
@@ -291,6 +292,14 @@ module.exports = grammar({
       $.named_parameter,
     ),
 
+
+    given_when_statement: $ =>
+      seq('given', '(', $.scalar, ')', 
+	  '{',
+	      repeat($._when),
+	      optional(field('default', $._default)),
+	  '}'
+      ),
 
     signature: $ => seq(
       alias($._signature_start, '('),
@@ -391,6 +400,15 @@ module.exports = grammar({
       seq('elsif', '(', field('condition', $._expr), ')',
         field('block', $.block),
         optional($._else)
+      ),
+
+    _when: $ =>
+      seq('when', '(', field('condition', $._expr), ')',
+        field('block', $.block)
+      ),
+    _default: $ =>
+      seq('default',
+        field('block', $.block)
       ),
 
     _expr: $ => choice($.lowprec_logical_expression, $._listexpr),
